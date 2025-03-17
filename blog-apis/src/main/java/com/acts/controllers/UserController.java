@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import com.acts.payloads.UserDto;
 import com.acts.service.UserService;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/users")
 public class UserController {
 
@@ -29,7 +27,9 @@ public class UserController {
 	// POST create user
 	@PostMapping("/register")
 	public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
-		System.out.println("hello");
+		System.out.println(userDto.getEmail());
+		System.out.println(userDto.getPassword());
+		
 		UserDto createUserdto = this.userService.createUser(userDto);
 		return new ResponseEntity<>(createUserdto, HttpStatus.CREATED);
 	}

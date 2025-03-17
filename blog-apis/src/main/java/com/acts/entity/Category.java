@@ -1,5 +1,8 @@
 package com.acts.entity;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 
 import jakarta.persistence.CascadeType;
@@ -33,6 +36,7 @@ public class Category {
 	@Column(name="description")
 	private String categoryDescription;
 	
+	@JsonIgnore
 	@OneToMany(mappedBy="category",cascade=CascadeType.ALL,fetch=FetchType.LAZY)
 	private List<Post> posts=new ArrayList<>();
 

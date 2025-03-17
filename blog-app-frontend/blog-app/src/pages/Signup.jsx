@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 import { Card, CardBody, CardHeader, Container, Form, FormGroup, Input, Label, Button, Alert } from "reactstrap";
 import Base from "../components/Base";
 import { signUp } from "../services/user-service";
@@ -13,9 +13,8 @@ const Signup = () => {
   });
 
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState("");  // Success/Error message state
+  const [message, setMessage] = useState("");
 
-  // Handle input change (Two-Way Binding)
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -24,7 +23,6 @@ const Signup = () => {
     }));
   };
 
-  // Reset Form
   const handleReset = () => {
     setFormData({
       name: "",
@@ -33,10 +31,9 @@ const Signup = () => {
       password: ""
     });
     setErrors({});
-    setMessage("");  // Clear any message on reset
+    setMessage("");
   };
 
-  // Form validation
   const validate = () => {
     let newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -47,33 +44,35 @@ const Signup = () => {
       newErrors.email = "Invalid email format";
     }
     if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");  // Reset message
+    setMessage("");
+
     if (validate()) {
-      signUp(formData)
-        .then((resp) => {
-          console.log(resp);
-          setMessage("Registration successful! You can now log in.");
-          handleReset();  // Clear form after successful registration
-        })
-        .catch((error) => {
-          console.error("Registration error:", error);
+      try {
+        const resp = await signUp(formData);
+        setMessage("User registered successfully! You can now log in.");
+        handleReset();
+      } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+          setMessage(error.response.data.message);
+        } else {
           setMessage("Registration failed. Please try again.");
-        });
+        }
+      }
     }
   };
 
   return (
     <Base>
-      {/* Login Button at the Top-Right */}
-      <div className="d-flex justify-content-end p-3">
+      <div className="d-flex justify-content-end p-3 gap-2">
+        <Link to="/">
+          <Button color="dark">Home</Button>
+        </Link>
         <Link to="/login">
           <Button color="dark">Login</Button>
         </Link>
@@ -86,7 +85,6 @@ const Signup = () => {
           </CardHeader>
           <CardBody>
             {message && <Alert color={message.includes("successful") ? "success" : "danger"}>{message}</Alert>}
-
             <Form onSubmit={handleSubmit}>
               <FormGroup>
                 <Label for="name">Full Name</Label>
@@ -108,8 +106,6 @@ const Signup = () => {
                 <Input type="password" id="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} />
                 {errors.password && <small className="text-danger">{errors.password}</small>}
               </FormGroup>
-
-              {/* Buttons: Register & Reset */}
               <div className="d-flex justify-content-between">
                 <Button color="dark" type="submit">Register</Button>
                 <Button color="secondary" type="button" onClick={handleReset}>Reset</Button>

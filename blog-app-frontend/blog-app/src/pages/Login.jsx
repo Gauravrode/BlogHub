@@ -1,19 +1,22 @@
 import React, { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Card, CardBody, CardHeader, Container, Form, FormGroup, Input, Label, Button } from "reactstrap";
+import { Card, CardBody, CardHeader, Container, Form, FormGroup, Input, Label, Button, Alert } from "reactstrap";
 import Base from "../components/Base";
+import { loginUser } from "../services/user-service";
+import { doLogin } from "../auth";
 
 const Login = () => {
   const location = useLocation();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
 
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  // Handle input change
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -22,7 +25,6 @@ const Login = () => {
     }));
   };
 
-  // Form validation
   const validate = () => {
     let newErrors = {};
     if (!formData.email.trim()) {
@@ -37,18 +39,32 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoginError("");
+    setSuccessMessage("");
+
     if (validate()) {
-      alert("Login successful!");
-      console.log("Form Data:", formData);
+      loginUser(formData)
+        .then((jwtTokenData) => {
+          doLogin(jwtTokenData, () => {});
+          setSuccessMessage("Login successful! Redirecting...");
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1500);
+        })
+        .catch((error) => {
+          if (error.response) {
+            setLoginError(error.response.data?.message || "Invalid credentials. Please try again.");
+          } else {
+            setLoginError("Network error. Please try again later.");
+          }
+        });
     }
   };
 
   return (
     <Base>
-      {/* Home & Register Buttons at the Top-Right */}
       <div className="d-flex justify-content-end p-3 gap-2">
         <Link to="/">
           <Button color="dark">Home</Button>
@@ -64,6 +80,9 @@ const Login = () => {
             <h3>Login</h3>
           </CardHeader>
           <CardBody>
+            {loginError && <Alert color="danger">{loginError}</Alert>}
+            {successMessage && <Alert color="success">{successMessage}</Alert>}
+
             <Form onSubmit={handleSubmit}>
               <FormGroup>
                 <Label for="email">Email Address</Label>
@@ -75,7 +94,9 @@ const Login = () => {
                 <Input type="password" id="password" placeholder="Enter your password" value={formData.password} onChange={handleChange} />
                 {errors.password && <small className="text-danger">{errors.password}</small>}
               </FormGroup>
-              <Button color="dark" block className="mt-3" type="submit">Login</Button>
+              <Button color="dark" block className="mt-3" type="submit">
+                Login
+              </Button>
             </Form>
           </CardBody>
         </Card>
@@ -85,4 +106,3 @@ const Login = () => {
 };
 
 export default Login;
- 

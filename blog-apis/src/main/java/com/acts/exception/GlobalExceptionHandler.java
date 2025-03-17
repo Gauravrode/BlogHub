@@ -37,12 +37,11 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(ApiException.class)
-	public ResponseEntity<ApiResponse> apiException(ApiException ex)
-	{
-		String message=ex.getMessage();
-		ApiResponse apiResponse=new ApiResponse(message,true);
-		return new ResponseEntity<ApiResponse> (apiResponse,HttpStatus.BAD_REQUEST);
-		
+	public ResponseEntity<Map<String, String>> handleApiException(ApiException ex) {
+	    Map<String, String> errorResponse = new HashMap<>();
+	    System.out.println("✅ GlobalExceptionHandler Caught ApiException: " + ex.getMessage());
+	    errorResponse.put("message", ex.getMessage());
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
 	}
 	
 }

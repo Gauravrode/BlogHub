@@ -1,6 +1,7 @@
 package com.acts.serviceImplementation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.acts.entity.User;
+import com.acts.exception.ApiException;
 import com.acts.exception.ResourceNotFoundException;
 import com.acts.payloads.UserDto;
 import com.acts.repository.UserRepo;
@@ -27,11 +29,19 @@ public class UserServiceImplementation implements UserService {
 	    private PasswordEncoder passwordEncoder; 
 
 	    public UserDto createUser(UserDto userDto) {
+	        Optional<User> existingUser = userRepo.findByEmail(userDto.getEmail());
+	        
+	        if (existingUser.isPresent()) {
+	        	throw new ApiException("Email already in use: " + userDto.getEmail());
+	        }
+
 	        User user = this.dtoToUser(userDto);
-	        user.setPassword(passwordEncoder.encode(user.getPassword()));
+	        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 	        User savedUser = this.userRepo.save(user);
+
 	        return this.userToDto(savedUser);
 	    }
+
 
 	    public UserDto updateUser(UserDto userDto, Integer id) {
 	        User user = this.userRepo.findById(id)

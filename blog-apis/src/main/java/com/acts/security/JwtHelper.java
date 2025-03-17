@@ -18,7 +18,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtHelper {
 
-    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours
+    public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; 
 
     private static final String SECRET_KEY = "Jqz6Tg3L98hbx2QnWZ6R9Kx5vFYX8pJY6RZ3tNyBLXm9PzKvT5B8XJY9QJX6Z7YQn9K3W8T5X6PzBL9mJqY5FZ====";
 

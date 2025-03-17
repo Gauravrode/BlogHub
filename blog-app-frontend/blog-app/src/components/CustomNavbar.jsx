@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
@@ -10,15 +10,32 @@ import {
   NavItem,
   NavLink,
 } from "reactstrap";
+import { doLogout, getCurrentUserDetail, isLoggedIn } from "../auth";
 
 const CustomNavbar = () => {
+  const [login, setLogin] = useState(false);
+  const [user, setUser] = useState(undefined);
   const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen);
-  const location = useLocation(); // Get current route
 
-  // Hide Navbar on Login and Signup pages
-  if (location.pathname === "/login" || location.pathname === "/signup") {
-    return null; // Do not render the Navbar
+  useEffect(() => {
+    setLogin(isLoggedIn());
+    setUser(getCurrentUserDetail());
+  }, [login]);
+
+  const logout = () => {
+    doLogout(() => {
+      setLogin(false);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
+    });
+  };
+
+  const toggle = () => setIsOpen(!isOpen);
+  const location = useLocation();
+
+  if (location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "privateRoute/createPost") {
+    return null;
   }
 
   return (
@@ -33,12 +50,30 @@ const CustomNavbar = () => {
           <NavItem>
             <NavLink href="/about">About</NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink href="/signup">Signup</NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink href="/login">Login</NavLink>
-          </NavItem>
+        </Nav>
+        <Nav navbar>
+          {login ? (
+            <>
+              <NavItem>
+                <NavLink href="/privateroute/dashboard">Dash Board</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink onClick={logout}>Logout</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="/privateroute/userprofile">{user.email}</NavLink>
+              </NavItem>
+            </>
+          ) : (
+            <>
+              <NavItem>
+                <NavLink href="/signup">Signup</NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="/login">Login</NavLink>
+              </NavItem>
+            </>
+          )}
         </Nav>
       </Collapse>
     </Navbar>

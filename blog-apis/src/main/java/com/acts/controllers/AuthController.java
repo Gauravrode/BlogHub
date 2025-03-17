@@ -1,5 +1,6 @@
 package com.acts.controllers;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.acts.exception.ApiException;
+import com.acts.payloads.UserDto;
 import com.acts.security.JwtHelper;
 import com.acts.security.JwtRequest;
 import com.acts.security.JwtResponse;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -33,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private JwtHelper helper;
+    
+    @Autowired
+	private ModelMapper modelMapper;
 
 
     @PostMapping("/login")
@@ -46,7 +50,7 @@ public class AuthController {
 
         JwtResponse response = new JwtResponse();
         response.setJwtToken(token);
-        response.setUsername(userDetails.getUsername());
+        response.setUser(this.modelMapper.map(userDetails, UserDto.class));
         
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -56,7 +60,6 @@ public class AuthController {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
         try {
             manager.authenticate(authentication);
-
 
         } catch (BadCredentialsException e) {
             throw new ApiException(" Invalid Username or Password  !!");
